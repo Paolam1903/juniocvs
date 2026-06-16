@@ -33,7 +33,7 @@ if not RUTA_LIQ.exists() or not RUTA_METAS.exists():
 # =============================
 st.markdown("""
 <div style="background-color:#E30613;padding:15px;border-radius:10px">
-<h1 style="color:white;text-align:center">📊 Dashboard Comercial de junio "detallado de ventas al 11" – CVS PLUS al 6</h1>
+<h1 style="color:white;text-align:center">📊 Dashboard Comercial de junio "detallado de ventas al 15" – CVS PLUS al 10</h1>
 </div>
 """, unsafe_allow_html=True)
 
@@ -516,6 +516,23 @@ def calcular_distribucion(n_asesores, cvs, nombre=None, rol=None):
     if cvs == "FRONTINO":
         return 0.50
 
+# Se convierte a porcentaje para productos y puntos
+    # ==================================================
+
+    if cvs == "CALDAS":
+
+        # Líder Yolima
+        if rol == "LIDER":
+            return 1166.2 / 3700
+
+        # María Camila
+        elif "MARIA" in nombre:
+            return 1749.4 / 3700
+
+        # Johnson
+        elif "JOHNSON" in nombre:
+            return 784.2 / 3700
+        
     # ==================================================
     # 🔴 REGLAS NORMALES
     # ==================================================

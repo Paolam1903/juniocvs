@@ -14,7 +14,24 @@ def calcular_distribucion(n_asesores, cvs, nombre=None, rol=None):
     # ==================================================
     if cvs == "FRONTINO":
         return 0.50
+    
+    # Se convierte a porcentaje para productos y puntos
+    # ==================================================
 
+    if cvs == "CALDAS":
+
+        # Líder Yolima
+        if rol == "LIDER":
+            return 1166.2 / 3700
+
+        # María Camila
+        elif "MARIA" in nombre:
+            return 1749.4 / 3700
+
+        # Johnson
+        elif "JOHNSON" in nombre:
+            return 784.2 / 3700
+        
     # ==================================================
     # 🔴 REGLAS NORMALES
     # ==================================================
