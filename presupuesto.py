@@ -8,13 +8,16 @@ def calcular_distribucion(n_asesores, cvs, nombre=None, rol=None):
     cvs = str(cvs).upper()
     nombre = str(nombre).upper() if nombre else ""
 
-
     # ==================================================
-    # 🔴 REGLA ESPECIAL FRONTINO
+    # 🔴 REGLA ESPECIAL caldas
     # ==================================================
-    if cvs == "FRONTINO":
-        return 0.50
-    
+    # Metas puntos:
+    # Líder Yolima = 1166.2
+    # Maria = 1749.4
+    # Johnson = 784.4
+    #
+    # La suma total = 3700
+    #
     # Se convierte a porcentaje para productos y puntos
     # ==================================================
 
@@ -30,8 +33,14 @@ def calcular_distribucion(n_asesores, cvs, nombre=None, rol=None):
 
         # Johnson
         elif "JOHNSON" in nombre:
-            return 784.2 / 3700
-        
+            return 784.4 / 3700
+           
+    # ==================================================
+    # 🔴 REGLA ESPECIAL FRONTINO
+    # ==================================================
+    if cvs == "FRONTINO":
+        return 0.50
+
     # ==================================================
     # 🔴 REGLAS NORMALES
     # ==================================================

@@ -6,11 +6,12 @@ import sqlite3
 from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 
 # =============================
 # CONFIG
 # =============================
-st.set_page_config("Dashboard Comercial - Junio CVS 2026", layout="wide")
+st.set_page_config("Dashboard Comercial - Mayo CVS 2026", layout="wide")
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -496,6 +497,7 @@ with col2:
 SUPERNUMERARIOS = [
     "Johan Daniel Herrera Mazo",
     "Kelly Yuliana Ospina Saldarriaga",
+    "Evelis Mary Ojeda Baldovino",
     "Sara Julieth Acevedo Gutierrez"
 ]
 
@@ -508,14 +510,16 @@ def calcular_distribucion(n_asesores, cvs, nombre=None, rol=None):
     cvs = str(cvs).upper()
     nombre = str(nombre).upper() if nombre else ""
 
-
-
     # ==================================================
-    # 🔴 REGLA ESPECIAL FRONTINO
+    # 🔴 REGLA ESPECIAL caldas
     # ==================================================
-    if cvs == "FRONTINO":
-        return 0.50
-
+    # Metas puntos:
+    # Líder Yolima = 1166.2
+    # Maria = 1749.4
+    # Johnson = 784.4
+    #
+    # La suma total = 3700
+    #
     # Se convierte a porcentaje para productos y puntos
     # ==================================================
 
@@ -531,8 +535,14 @@ def calcular_distribucion(n_asesores, cvs, nombre=None, rol=None):
 
         # Johnson
         elif "JOHNSON" in nombre:
-            return 784.2 / 3700
-        
+            return 784.4 / 3700
+
+    # ==================================================
+    # 🔴 REGLA ESPECIAL FRONTINO
+    # ==================================================
+    if cvs == "FRONTINO":
+        return 0.50
+
     # ==================================================
     # 🔴 REGLAS NORMALES
     # ==================================================
@@ -633,11 +643,13 @@ def construir_tabla_productos(df_vendedor, maestro, df_cvs, rol):
     for producto, meta in maestro.items():
 
         # 🔴 META AJUSTADA
-        meta_ajustada = meta * porcentaje
+        meta_ajustada = math.floor((meta * porcentaje) + 0.5)
+
+        # Redondeo comercial
+        meta_ajustada = int(meta_ajustada + 0.5)
 
         ejecutado = ejec.get(producto, 0)
 
-        # 🔴 % CUMPLIMIENTO
         if meta_ajustada > 0:
             pct = int(round((ejecutado / meta_ajustada) * 100))
         else:
@@ -645,7 +657,7 @@ def construir_tabla_productos(df_vendedor, maestro, df_cvs, rol):
 
         filas.append({
             "Producto": producto,
-            "Meta_Producto": int(round(meta_ajustada)),
+            "Meta_Producto": meta_ajustada,
             "Ejecutado": int(ejecutado),
             "% Cumplimiento": f"{pct}%"
         })
@@ -705,7 +717,7 @@ def calcular_kpi_puntos(df_cvs, df_persona, rol):
     )
 
     # 🔴 META PERSONALIZADA
-    meta = meta_general * porcentaje
+    meta = math.floor((meta_general * porcentaje) + 0.5)
 
     # 🔴 EJECUTADO
     ejecutado = df_persona["Puntos"].sum()
