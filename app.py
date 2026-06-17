@@ -497,7 +497,6 @@ with col2:
 SUPERNUMERARIOS = [
     "Johan Daniel Herrera Mazo",
     "Kelly Yuliana Ospina Saldarriaga",
-    "Evelis Mary Ojeda Baldovino",
     "Sara Julieth Acevedo Gutierrez"
 ]
 
