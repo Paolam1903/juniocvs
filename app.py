@@ -516,7 +516,7 @@ def calcular_distribucion(n_asesores, cvs, nombre=None, rol=None):
     if cvs == "FRONTINO":
         return 0.50
 
-# Se convierte a porcentaje para productos y puntos
+    # Se convierte a porcentaje para productos y puntos
     # ==================================================
 
     if cvs == "CALDAS":
