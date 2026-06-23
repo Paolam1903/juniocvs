@@ -11,7 +11,7 @@ import math
 # =============================
 # CONFIG
 # =============================
-st.set_page_config("Dashboard Comercial - Mayo CVS 2026", layout="wide")
+st.set_page_config("Dashboard Comercial - Junio CVS 2026", layout="wide")
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -34,7 +34,7 @@ if not RUTA_LIQ.exists() or not RUTA_METAS.exists():
 # =============================
 st.markdown("""
 <div style="background-color:#E30613;padding:15px;border-radius:10px">
-<h1 style="color:white;text-align:center">📊 Dashboard Comercial de junio "detallado de ventas al 18" – CVS PLUS al 13</h1>
+<h1 style="color:white;text-align:center">📊 Dashboard Comercial de junio "detallado de ventas al 22" – CVS PLUS al 18</h1>
 </div>
 """, unsafe_allow_html=True)
 
@@ -540,7 +540,13 @@ def calcular_distribucion(n_asesores, cvs, nombre=None, rol=None):
     # 🔴 REGLA ESPECIAL FRONTINO
     # ==================================================
     if cvs == "FRONTINO":
-        return 0.50
+        if rol == "LIDER":
+            return 0.50
+        else:
+            return 0.50
+
+    if cvs == "EL BAGRE":
+        return 1 / 3
 
     # ==================================================
     # 🔴 REGLAS NORMALES
