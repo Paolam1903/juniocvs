@@ -537,16 +537,11 @@ def calcular_distribucion(n_asesores, cvs, nombre=None, rol=None):
             return 784.4 / 3700
 
     # ==================================================
+    # ==================================================
     # 🔴 REGLA ESPECIAL FRONTINO
     # ==================================================
     if cvs == "FRONTINO":
-        if rol == "LIDER":
-            return 0.50
-        else:
-            return 0.50
-
-    if cvs == "EL BAGRE":
-        return 1 / 3
+        return 0.50
 
     # ==================================================
     # 🔴 REGLAS NORMALES
