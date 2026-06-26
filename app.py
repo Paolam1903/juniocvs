@@ -34,7 +34,7 @@ if not RUTA_LIQ.exists() or not RUTA_METAS.exists():
 # =============================
 st.markdown("""
 <div style="background-color:#E30613;padding:15px;border-radius:10px">
-<h1 style="color:white;text-align:center">📊 Dashboard Comercial de junio "detallado de ventas al 22" – CVS PLUS al 18</h1>
+<h1 style="color:white;text-align:center">📊 Dashboard Comercial de junio "detallado de ventas al 25" – CVS PLUS al 24</h1>
 </div>
 """, unsafe_allow_html=True)
 
@@ -135,8 +135,8 @@ elif perfil == "DIRECTOR COMERCIAL":
 
 
 # =============================
-# CARGA DATOS Y FILTROS SEGURAMENTE
-# ============================
+# CARGA DATOS Y FILTROS
+# =============================
 
 # -----------------------------
 # Leer archivos
@@ -145,10 +145,25 @@ df = pd.read_excel(RUTA_LIQ)
 df_meta = pd.read_excel(RUTA_METAS)
 
 # -----------------------------
+# Convertir la columna Cantidad a numérica
+# -----------------------------
+df["Cantidad"] = (
+    df["Cantidad"]
+    .astype(str)
+    .str.replace(",", ".", regex=False)
+)
+
+df["Cantidad"] = pd.to_numeric(
+    df["Cantidad"],
+    errors="coerce"
+).fillna(0)
+
+# -----------------------------
 # Formatear fecha y crear columna Mes
 # -----------------------------
 df["Fecha"] = pd.to_datetime(df["Fecha"])
 df["Mes"] = df["Fecha"].dt.strftime("%Y-%m")
+
 
 # -----------------------------
 # Normalizar columnas de texto
@@ -210,30 +225,58 @@ if cvs_sel and cvs_sel != "Todos":
         (df_f["Producto"].str.upper() == "CVS PLUS")
     ]
 
+
+
+# =============================
+# KPI CVS PLUS
+# =============================
+
+if cvs_sel and cvs_sel != "Todos":
+
+    df_cvs_plus = df_f[
+        (df_f["Sucursal"] == cvs_sel) &
+        (df_f["Producto"] == "CVS PLUS")
+    ]
+
     # Meta CVS PLUS
     meta_plus = df_cvs_plus["Meta_Producto"].max()
 
-    # Ejecutado (cantidad)
-    ejec_plus = df_cvs_plus["Cantidad"].iloc[0] if not df_cvs_plus.empty else 0
+    # Ejecutado CVS PLUS
+    ejec_plus = df_cvs_plus["Cantidad"].sum()
 
-    # % cumplimiento
+    # % cumplimiento cantidad
     if meta_plus > 0:
         pct_plus = round((ejec_plus / meta_plus) * 100, 1)
     else:
         pct_plus = 0
 
+    # % Encuestas
+    df_turno = df_f[
+        (df_f["Sucursal"] == cvs_sel) &
+        (df_f["Producto"] == "TURNO")
+    ]
+
+    if not df_turno.empty:
+        pct_encuestas = round(
+            float(df_turno["Cantidad"].iloc[0]),
+            1
+        )
+    else:
+        pct_encuestas = 0
+
     # Semáforo
-    if pct_plus >= 100:
+    if pct_plus >= 100 and pct_encuestas >= 5:
         color = "#2ecc71"
-        estado = "Cumplido"
-    elif pct_plus >= 80:
+        estado = "Cumple cantidad y encuestas"
+
+    elif pct_plus >= 100 and pct_encuestas < 5:
         color = "#f39c12"
-        estado = "En riesgo"
+        estado = "Cumple cantidad, no cumple encuestas"
+
     else:
         color = "#e74c3c"
-        estado = "Bajo cumplimiento"
+        estado = "No cumple condiciones"
 
-    # Cuadro visual
     st.markdown(
         f"""
         <div style="
@@ -247,16 +290,18 @@ if cvs_sel and cvs_sel != "Todos":
             margin-bottom:15px;
         ">
         📦 CVS PLUS — {cvs_sel}<br><br>
-        Meta: {int(meta_plus):,} | Ejecutado: {int(ejec_plus):,}<br>
-        Cumplimiento: {pct_plus}% ({estado})
+
+        Meta: {int(meta_plus):,} |
+        Ejecutado: {int(ejec_plus):,}<br>
+
+        Cumplimiento: {pct_plus}%<br>
+        Encuestas: {pct_encuestas}%<br><br>
+
+        {estado}
         </div>
         """,
         unsafe_allow_html=True
     )
-
-
-
-
 
 # =============================
 # TABS
@@ -524,17 +569,17 @@ def calcular_distribucion(n_asesores, cvs, nombre=None, rol=None):
 
     if cvs == "CALDAS":
 
-        # Líder Yolima
         if rol == "LIDER":
             return 1166.2 / 3700
 
-        # María Camila
         elif "MARIA" in nombre:
             return 1749.4 / 3700
 
-        # Johnson
         elif "JOHNSON" in nombre:
             return 784.4 / 3700
+
+        else:
+            return 0.266   # o el porcentaje que corresponda
 
     # ==================================================
     # ==================================================
@@ -629,6 +674,11 @@ def construir_tabla_productos(df_vendedor, maestro, df_cvs, rol):
         rol
     )
 
+
+
+
+
+
     # =========================
     # EJECUTADO PRODUCTOS
     # =========================
@@ -638,18 +688,58 @@ def construir_tabla_productos(df_vendedor, maestro, df_cvs, rol):
         .to_dict()
     )
 
+    # =========================
+    # ELIMINAR PRODUCTOS VACÍOS
+    # =========================
+    maestro_limpio = {
+        producto: meta
+        for producto, meta in maestro.items()
+        if pd.notna(producto)
+        and str(producto).strip() != ""
+        and str(producto).upper() != "NONE"
+    }
+
     filas = []
 
-    for producto, meta in maestro.items():
+    for producto, meta in maestro_limpio.items():
 
-        # 🔴 META AJUSTADA
+        # =========================
+        # VALIDAR NaN
+        # =========================
+        if pd.isna(meta):
+            meta = 0
+
+        if pd.isna(porcentaje):
+            porcentaje = 0
+
+        # =========================
+        # META AJUSTADA
+        # =========================
         meta_ajustada = math.floor((meta * porcentaje) + 0.5)
 
         # Redondeo comercial
-        meta_ajustada = int(meta_ajustada + 0.5)
+        meta_ajustada = int(meta_ajustada)
 
+        # =========================
+        # EJECUTADO
+        # =========================
         ejecutado = ejec.get(producto, 0)
 
+        # =========================
+        # REGLA ESPECIAL OTROS
+        # =========================
+        if producto == "OTROS":
+
+            porta_prepago = ejec.get("PORTABILIDADES PREPAGO", 0)
+
+            # Si no cumple las 4 portabilidades prepago,
+            # no aplica el pago del KPI OTROS
+            if porta_prepago < 4:
+                ejecutado = 0
+
+        # =========================
+        # % CUMPLIMIENTO
+        # =========================
         if meta_ajustada > 0:
             pct = int(round((ejecutado / meta_ajustada) * 100))
         else:
@@ -662,7 +752,19 @@ def construir_tabla_productos(df_vendedor, maestro, df_cvs, rol):
             "% Cumplimiento": f"{pct}%"
         })
 
+    # =========================
+    # CREAR TABLA
+    # =========================
     tabla = pd.DataFrame(filas)
+
+    # =========================
+    # ELIMINAR FILAS VACÍAS
+    # =========================
+    tabla = tabla[
+        tabla["Producto"].notna() &
+        (tabla["Producto"].astype(str).str.strip() != "") &
+        (tabla["Producto"].astype(str).str.upper() != "NONE")
+    ]
 
     # =========================
     # ORDEN FIJO PRODUCTOS
@@ -682,6 +784,7 @@ def construir_tabla_productos(df_vendedor, maestro, df_cvs, rol):
     )
 
     tabla = tabla.sort_values("Producto")
+    tabla = tabla.dropna(subset=["Producto"])
 
     return tabla
 
