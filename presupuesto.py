@@ -34,6 +34,20 @@ def calcular_distribucion(n_asesores, cvs, nombre=None, rol=None):
         # Johnson
         elif "JOHNSON" in nombre:
             return 784.4 / 3700
+
+    # ==================================================
+    # LA ESTRELLA
+    # ==================================================
+
+    if cvs == "LA ESTRELLA":
+
+        # Líder Jhon
+        if rol == "LIDER":
+            return 432 / 1500
+
+        # Yessica (420 + 648 = 1068)
+        elif "YESSICA" in nombre:
+            return 1068 / 1500
            
     # ==================================================
     # 🔴 REGLA ESPECIAL FRONTINO
