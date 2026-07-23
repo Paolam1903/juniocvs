@@ -48,7 +48,21 @@ def calcular_distribucion(n_asesores, cvs, nombre=None, rol=None):
         # Yessica (420 + 648 = 1068)
         elif "YESSICA" in nombre:
             return 1068 / 1500
-           
+
+    # ==================================================
+    # DON MATIAS
+    # ==================================================
+
+    if cvs == "DON MATIAS":
+
+        # Líder Diana
+        if rol == "LIDER":
+            return 261 / 1500
+
+        # Evelyn
+        elif "EVELYN" in nombre:
+            return 1239 / 1500
+        
     # ==================================================
     # 🔴 REGLA ESPECIAL FRONTINO
     # ==================================================
